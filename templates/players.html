@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Life Tracker — Player Info</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0e0e12;
+      --surface: #16161d;
+      --border:  #2a2a38;
+      --p1:      #e05c5c;
+      --p2:      #5c8fe0;
+      --text:    #e8e8f0;
+      --muted:   #707090;
+      --green:   #4ecb71;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 64px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .round-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    /* ── Match sections ── */
+    .matches {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .match-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .match-heading {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .player-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .pcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .pcard.p1 { border-top: 3px solid var(--p1); }
+    .pcard.p2 { border-top: 3px solid var(--p2); }
+
+    .pcard-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pcard.p1 .pcard-title { color: var(--p1); }
+    .pcard.p2 .pcard-title { color: var(--p2); }
+
+    /* ── Fields ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #505070;
+    }
+
+    .field input::placeholder { color: #404058; }
+
+    /* ── Save button ── */
+    .save-btn {
+      background: var(--green);
+      border: none;
+      border-radius: 7px;
+      color: #0a1a0a;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 9px 0;
+      text-transform: uppercase;
+      transition: filter 0.12s, transform 0.1s;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .save-btn:hover  { filter: brightness(1.1); }
+    .save-btn:active { transform: scale(0.97); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--green);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      padding: 10px 20px;
+      pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s;
+      opacity: 0;
+      z-index: 100;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 540px) {
+      .player-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Player Info</h1>
+  <p>LIFE TRACKER &nbsp;|&nbsp; <a href="/" style="color:#5c8fe0;text-decoration:none;letter-spacing:0.04em">← Control Panel</a></p>
+</header>
+
+<div class="matches">
+
+  <!-- Event / round info -->
+  <div class="match-block">
+    <div class="match-heading">Event Info</div>
+    <div class="field">
+      <label>Event Name</label>
+      <input type="text" id="event-input" maxlength="80" placeholder="e.g. Friday Night Commander" />
+    </div>
+    <div class="field">
+      <label>Commentators</label>
+      <input type="text" id="commentators-input" maxlength="80" placeholder="e.g. Alex &amp; Sam" />
+    </div>
+    <div class="round-row">
+      <div class="field" style="flex:1">
+        <label>Round</label>
+        <input type="text" id="round-input" maxlength="60" placeholder="e.g. Round 4 — Swiss" />
+      </div>
+      <button class="save-btn" style="align-self:flex-end;width:auto;padding:9px 28px" onclick="saveEventInfo()">Save</button>
+    </div>
+  </div>
+  <div class="match-block">
+    <div class="match-heading">Match 1</div>
+    <div class="player-cards">
+      <div class="pcard p1">
+        <div class="pcard-title">Player 1</div>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="m1p1-name" maxlength="40" placeholder="Player name" />
+        </div>
+        <div class="field">
+          <label>Pronouns</label>
+          <input type="text" id="m1p1-pronouns" maxlength="30" placeholder="e.g. they/them" />
+        </div>
+        <div class="field">
+          <label>Deck</label>
+          <input type="text" id="m1p1-deck" maxlength="60" placeholder="e.g. Atraxa, Praetors' Voice" />
+        </div>
+        <div class="field">
+          <label>Record</label>
+          <input type="text" id="m1p1-record" maxlength="20" placeholder="e.g. 3-1-0" />
+        </div>
+        <button class="save-btn" onclick="savePlayer('match1','player1')">Save</button>
+      </div>
+      <div class="pcard p2">
+        <div class="pcard-title">Player 2</div>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="m1p2-name" maxlength="40" placeholder="Player name" />
+        </div>
+        <div class="field">
+          <label>Pronouns</label>
+          <input type="text" id="m1p2-pronouns" maxlength="30" placeholder="e.g. she/her" />
+        </div>
+        <div class="field">
+          <label>Deck</label>
+          <input type="text" id="m1p2-deck" maxlength="60" placeholder="e.g. Ur-Dragon" />
+        </div>
+        <div class="field">
+          <label>Record</label>
+          <input type="text" id="m1p2-record" maxlength="20" placeholder="e.g. 2-2-0" />
+        </div>
+        <button class="save-btn" onclick="savePlayer('match1','player2')">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Match 2 -->
+  <div class="match-block">
+    <div class="match-heading">Match 2</div>
+    <div class="player-cards">
+      <div class="pcard p1">
+        <div class="pcard-title">Player 1</div>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="m2p1-name" maxlength="40" placeholder="Player name" />
+        </div>
+        <div class="field">
+          <label>Pronouns</label>
+          <input type="text" id="m2p1-pronouns" maxlength="30" placeholder="e.g. he/him" />
+        </div>
+        <div class="field">
+          <label>Deck</label>
+          <input type="text" id="m2p1-deck" maxlength="60" placeholder="e.g. Meren of Clan Nel Toth" />
+        </div>
+        <div class="field">
+          <label>Record</label>
+          <input type="text" id="m2p1-record" maxlength="20" placeholder="e.g. 4-0-0" />
+        </div>
+        <button class="save-btn" onclick="savePlayer('match2','player1')">Save</button>
+      </div>
+      <div class="pcard p2">
+        <div class="pcard-title">Player 2</div>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="m2p2-name" maxlength="40" placeholder="Player name" />
+        </div>
+        <div class="field">
+          <label>Pronouns</label>
+          <input type="text" id="m2p2-pronouns" maxlength="30" placeholder="e.g. they/them" />
+        </div>
+        <div class="field">
+          <label>Deck</label>
+          <input type="text" id="m2p2-deck" maxlength="60" placeholder="e.g. Omnath, Locus of Mana" />
+        </div>
+        <div class="field">
+          <label>Record</label>
+          <input type="text" id="m2p2-record" maxlength="20" placeholder="e.g. 1-3-0" />
+        </div>
+        <button class="save-btn" onclick="savePlayer('match2','player2')">Save</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const KEY = { match1: 'm1', match2: 'm2' };
+  const PKEY = { player1: 'p1', player2: 'p2' };
+
+  function prefix(match, player) {
+    return `${KEY[match]}${PKEY[player]}`;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function populate(match, player, data) {
+    const px = prefix(match, player);
+    document.getElementById(`${px}-name`).value     = data.name     || '';
+    document.getElementById(`${px}-pronouns`).value = data.pronouns || '';
+    document.getElementById(`${px}-deck`).value     = data.deck     || '';
+    document.getElementById(`${px}-record`).value   = data.record   || '';
+  }
+
+  async function savePlayer(match, player) {
+    const px = prefix(match, player);
+    const payload = {
+      name:     document.getElementById(`${px}-name`).value.trim(),
+      pronouns: document.getElementById(`${px}-pronouns`).value.trim(),
+      deck:     document.getElementById(`${px}-deck`).value.trim(),
+      record:   document.getElementById(`${px}-record`).value.trim(),
+    };
+    if (!payload.name) { showToast('Name cannot be empty'); return; }
+    await fetch(`/api/player/${match}/${player}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    showToast('Saved');
+  }
+
+  // Save on Enter in any field
+  document.querySelectorAll('.field input').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const card = inp.closest('.pcard');
+        card.querySelector('.save-btn').click();
+      }
+    });
+  });
+
+  async function saveEventInfo() {
+    const payload = {
+      event:        document.getElementById('event-input').value.trim(),
+      commentators: document.getElementById('commentators-input').value.trim(),
+      round:        document.getElementById('round-input').value.trim(),
+    };
+    await fetch('/api/event_info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    showToast('Event info saved');
+  }
+
+  ['event-input','commentators-input','round-input'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveEventInfo();
+    });
+  });
+
+  // Load current state on page open
+  fetch('/api/state').then(r => r.json()).then(data => {
+    document.getElementById('event-input').value        = data.event || '';
+    document.getElementById('commentators-input').value = data.commentators || '';
+    document.getElementById('round-input').value        = data.round || '';
+    ['match1','match2'].forEach(m => {
+      ['player1','player2'].forEach(p => {
+        populate(m, p, data[m][p]);
+      });
+    });
+  });
+</script>
+</body>
+</html>
