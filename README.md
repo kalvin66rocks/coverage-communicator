@@ -19,10 +19,11 @@ The server starts on port `5008` and binds to all network interfaces, so other d
 
 | URL | Purpose |
 |-----|---------|
-| `http://localhost:5000/` | **Control panel** — adjust life, poison, score, and timers for both matches. Player names are shown read-only here. |
-| `http://localhost:5000/players` | **Player info editor** — set each player's name, pronouns, deck, and record, plus the shared event name, commentators, and round. |
-| `http://localhost:5000/overlay/match1` | **OBS overlay for match 1** |
-| `http://localhost:5000/overlay/match2` | **OBS overlay for match 2** |
+| `http://localhost:5008/` | **Control panel** — adjust life, poison, score, and timers for both matches. Player names are shown read-only here. |
+| `http://localhost:5008/players` | **Player info editor** — set each player's name, pronouns, deck, and record, plus the shared event name, commentators, and round. |
+| `http://localhost:5008/overlay/match1` | **OBS overlay for match 1** |
+| `http://localhost:5008/overlay/match2` | **OBS overlay for match 2** |
+| `http://localhost:5008/overlay/commentators` | **Commentator overlay** — event name plus both commentators' names and pronouns, with positioning that's easy to align to an existing graphic |
 
 All pages poll the server every 2 seconds, so the admin panel and overlays stay in sync across multiple open devices automatically.
 
@@ -55,16 +56,19 @@ Empty fields are hidden so they leave no gaps.
 
 ### Event info
 Shared across both matches, set from the `/players` page:
-- **Event name** — displayed bottom-center of the overlay
-- **Commentators** — displayed to the left of the event name with a 🎤 prefix
-- **Round** — displayed bottom-right of the overlay
+- **Event name** — displayed bottom-center of the match overlays
+- **Commentator 1** and **Commentator 2** — entered separately, each with optional **social handle** and **pronouns** fields. On the match overlays the names appear to the left of the event name joined with ` & ` and prefixed with 🎤 (e.g. `🎤 Alex & Sam`). If only one is filled in, just that name shows; if both are empty, nothing shows.
+- **Round** — displayed bottom-right of the match overlays
+
+### Commentator overlay
+A separate overlay at `/overlay/commentators` showing the event name and both commentators' names, social handles, and pronouns, intended to be composited over an existing lower-third or intro graphic. Under each name, the social handle and pronouns share one line (social first, then pronouns, separated by a space) centered with the name. All positions (event and each commentator's anchor point, alignment, font sizes, and colors) are exposed as CSS variables in a clearly labeled block at the top of `templates/commentator_overlay.html`, so you can line the text up with your graphic by editing just those values. Commentator 1 is anchored a fixed distance from the left edge and commentator 2 the same distance from the right edge; each block's `align-center` / `align-left` / `align-right` class controls whether its anchor point is its center, left, or right edge.
 
 ## OBS Setup
 
 For each match you want to show:
 
 1. In OBS, add a **Browser Source**.
-2. Set the URL to `http://localhost:5000/overlay/match1` (or `match2`).
+2. Set the URL to `http://localhost:5008/overlay/match1` (or `match2`).
 3. Set Width: `1920`, Height: `1080`.
 4. The overlay background is transparent — no extra configuration needed.
 
@@ -77,10 +81,10 @@ The server binds to `0.0.0.0`, so any device on the same network can connect.
 1. Find your computer's local IP:
    - **macOS:** `ipconfig getifaddr en0`
    - **Windows:** `ipconfig` (look for the IPv4 address)
-2. On the other device, browse to `http://<your-ip>:5000` (e.g. `http://192.168.1.50:5000`).
+2. On the other device, browse to `http://<your-ip>:5008` (e.g. `http://192.168.1.50:5008`).
 3. If the connection is refused, check your firewall:
    - **macOS:** System Settings → Network → Firewall — allow Python, or turn it off to test.
-   - **Windows:** Allow inbound TCP on port 5000 through Windows Defender Firewall.
+   - **Windows:** Allow inbound TCP on port 5008 through Windows Defender Firewall.
 
 Both devices must be on the same network.
 
@@ -98,7 +102,7 @@ All POST endpoints accept and return JSON. `<match>` is `match1` or `match2`; `<
 | POST | `/api/timer/<match>` | `{"action": "start"}` | Control timer. Actions: `start`, `pause`, `reset`, `set_mode` (with `{"count_up": true}`) |
 | POST | `/api/player/<match>/<player>` | `{"name": "...", "deck": "...", "record": "...", "pronouns": "..."}` | Update any subset of a player's info |
 | POST | `/api/name/<match>/<player>` | `{"name": "Alice"}` | Update just a player's name |
-| POST | `/api/event_info` | `{"event": "...", "commentators": "...", "round": "..."}` | Update any subset of the shared event info |
+| POST | `/api/event_info` | `{"event": "...", "commentator1": "...", "commentator1_social": "...", "commentator1_pronouns": "...", "commentator2": "...", "commentator2_social": "...", "commentator2_pronouns": "...", "round": "..."}` | Update any subset of the shared event info |
 | POST | `/api/round` | `{"round": "..."}` | Update just the round (legacy; `/api/event_info` is preferred) |
 | POST | `/api/reset/<match>` | — | Reset both players in one match to 20 life |
 | POST | `/api/reset_all` | — | Reset all players in both matches to 20 life |

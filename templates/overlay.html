@@ -359,7 +359,11 @@
 
       setText('round', data.round);
       setText('event', data.event);
-      setText('commentators', data.commentators ? `🎤 ${data.commentators}` : '');
+      const commentators = [data.commentator1, data.commentator2]
+        .map(c => (c || '').trim())
+        .filter(Boolean)
+        .join(' & ');
+      setText('commentators', commentators ? `🎤 ${commentators}` : '');
     } catch (e) {}
   }
 

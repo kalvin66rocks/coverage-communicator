@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Commentator Overlay</title>
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       ADJUST THESE VALUES to line the text up with your graphic.
+       Every position is set here so you don't have to hunt through
+       the rest of the CSS. All values are in pixels unless noted.
+       The canvas is a standard 1920 × 1080 OBS browser source.
+       ════════════════════════════════════════════════════════════════ */
+    :root {
+      /* Common variables */
+      --edge-spacing:      400px;
+      --commentator-bottom-spacing:    60px;
+      /* ── Event name block ── */
+      --event-left:        960px;   /* horizontal anchor (960 = centre)   */
+      --event-bottom:      80px;   /* distance from top                  */
+      --event-align:       center;  /* left | center | right              */
+      --event-size:        3.4rem;  /* font size                          */
+
+      /* ── Commentator 1 block ── */
+      --c1-left:           var(--edge-spacing);   /* distance from LEFT edge to anchor  */
+      --c1-top:            780px;   /* distance from top                  */
+      --c1-align:          center;  /* left | center | right              */
+
+      /* ── Commentator 2 block ── */
+      --c2-right:          var(--edge-spacing);   /* distance from RIGHT edge to anchor */
+      --c2-top:            780px;   /* distance from top                  */
+      --c2-align:          center;  /* left | center | right              */
+
+      /* ── Commentator name / pronoun sizing (shared) ── */
+      --name-size:         2.6rem;  /* commentator name font size         */
+      --pronoun-size:      1.5rem;  /* pronoun font size                  */
+      --social-size:       1.5rem;  /* social handle font size            */
+      --name-pronoun-gap:  4px;     /* vertical gap between name & detail  */
+
+      /* ── Colours ── */
+      --text-color:        #ffffff;
+      --pronoun-color:     rgba(255,255,255,1);
+      --social-color:      rgba(255,255,255,1);
+
+      /* ── Font ── */
+      --font:              Arial, Helvetica, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body {
+      position: relative;
+      font-family: var(--font);
+      color: var(--text-color);
+    }
+
+    /* A positioned block. Its left edge sits at the --*-left anchor and
+       it is shifted so that the chosen --*-align edge lands on that anchor:
+         left   → anchor is the left edge
+         center → anchor is the centre
+         right  → anchor is the right edge                                 */
+    .block {
+      position: absolute;
+      white-space: nowrap;
+      display: inline-flex;
+      flex-direction: column;
+    }
+
+    /* Event */
+    .event {
+      left: var(--event-left);
+      bottom:  var(--event-bottom);
+      font-size: var(--event-size);
+      font-weight: 700;
+      text-align: var(--event-align);
+    }
+    .event.align-center { transform: translateX(-50%); align-items: center; }
+    .event.align-right  { transform: translateX(-100%); align-items: flex-end; }
+    .event.align-left   { align-items: flex-start; }
+
+    /* Commentator 1 */
+    .c1 {
+      left: var(--c1-left);
+      /* top:  var(--c1-top); */
+      bottom: var(--commentator-bottom-spacing);
+    }
+    .c1.align-center { transform: translateX(-50%); align-items: center; }
+    .c1.align-right  { transform: translateX(-100%); align-items: flex-end; }
+    .c1.align-left   { align-items: flex-start; }
+
+    /* Commentator 2 — anchored from the RIGHT edge */
+    .c2 {
+      right: var(--c2-right);
+      /* top:   var(--c2-top); */
+      bottom: var(--commentator-bottom-spacing);
+    }
+    .c2.align-center { transform: translateX(50%);  align-items: center; }
+    .c2.align-right  { transform: translateX(0);     align-items: flex-end; }
+    .c2.align-left   { transform: translateX(100%); align-items: flex-start; }
+
+    .comm-name {
+      font-size: var(--name-size);
+      font-weight: 700;
+      line-height: 1.05;
+    }
+
+    /* second line: social handle then pronouns, on one row, centered */
+    .comm-detail {
+      display: block;
+      margin-top: var(--name-pronoun-gap);
+      line-height: 1.05;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .comm-social {
+      font-size: var(--social-size);
+      font-weight: 700;
+      color: var(--social-color);
+    }
+
+    .comm-pronouns {
+      font-size: var(--pronoun-size);
+      font-weight: 400;
+      color: var(--pronoun-color);
+      line-height: 1.05;
+      margin-top: var(--name-pronoun-gap);
+    }
+
+    /* hide empties so nothing leaves a gap */
+    .comm-name:empty,
+    .comm-social:empty,
+    .comm-pronouns:empty,
+    .event-text:empty { display: none; }
+
+    /* collapse the detail line when JS marks it empty */
+    .comm-detail[data-empty="true"] { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Event name -->
+  <div class="block event align-center">
+    <span class="event-text" id="event"></span>
+  </div>
+
+  <!-- Commentator 1 -->
+  <div class="block c1 align-center">
+    <span class="comm-name" id="c1-name"></span>
+    <span class="comm-detail" id="c1-detail"><span class="comm-social" id="c1-social"></span><span class="comm-pronouns" id="c1-pronouns"></span></span>
+  </div>
+
+  <!-- Commentator 2 -->
+  <div class="block c2 align-center">
+    <span class="comm-name" id="c2-name"></span>
+    <span class="comm-detail" id="c2-detail"><span class="comm-social" id="c2-social"></span><span class="comm-pronouns" id="c2-pronouns"></span></span>
+  </div>
+
+<script>
+  function setText(id, val) {
+    document.getElementById(id).textContent = val || '';
+  }
+
+  // social handle and pronouns share a line; add a separating space
+  // only when both are present so there's no stray leading/trailing gap.
+  function setDetail(prefix, social, pronouns) {
+    social   = (social   || '').trim();
+    pronouns = (pronouns || '').trim();
+    document.getElementById(`${prefix}-social`).textContent =
+      (social && pronouns) ? social + ' ' : social;
+    document.getElementById(`${prefix}-pronouns`).textContent = pronouns;
+    document.getElementById(`${prefix}-detail`).dataset.empty =
+      (!social && !pronouns) ? 'true' : 'false';
+  }
+
+  async function poll() {
+    try {
+      const res  = await fetch('/api/state');
+      const data = await res.json();
+
+      setText('event', data.event);
+
+      setText('c1-name', data.commentator1);
+      setDetail('c1', data.commentator1_social, data.commentator1_pronouns);
+
+      setText('c2-name', data.commentator2);
+      setDetail('c2', data.commentator2_social, data.commentator2_pronouns);
+    } catch (e) { /* retry next tick */ }
+  }
+
+  poll();
+  setInterval(poll, 2000);
+</script>
+</body>
+</html>

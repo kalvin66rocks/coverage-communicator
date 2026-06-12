@@ -32,7 +32,12 @@ state = {
     },
     "round": "",
     "event": "",
-    "commentators": "",
+    "commentator1": "",
+    "commentator1_pronouns": "",
+    "commentator1_social": "",
+    "commentator2": "",
+    "commentator2_pronouns": "",
+    "commentator2_social": "",
 }
 lock = Lock()
 
@@ -78,6 +83,10 @@ def overlay(match):
         return "Not found", 404
     return render_template("overlay.html", match=match)
 
+@app.route("/overlay/commentators")
+def commentator_overlay():
+    return render_template("commentator_overlay.html")
+
 
 # ── API ────────────────────────────────────────────────────────────────────
 
@@ -94,7 +103,12 @@ def get_state():
             }
         out["round"] = state["round"]
         out["event"] = state["event"]
-        out["commentators"] = state["commentators"]
+        out["commentator1"] = state["commentator1"]
+        out["commentator1_pronouns"] = state["commentator1_pronouns"]
+        out["commentator1_social"] = state["commentator1_social"]
+        out["commentator2"] = state["commentator2"]
+        out["commentator2_pronouns"] = state["commentator2_pronouns"]
+        out["commentator2_social"] = state["commentator2_social"]
         return jsonify(out)
 
 @app.route("/api/state/<match>")
@@ -110,7 +124,12 @@ def get_match_state(match):
             "score":   m["score"],
             "round":   state["round"],
             "event":   state["event"],
-            "commentators": state["commentators"],
+            "commentator1": state["commentator1"],
+            "commentator1_pronouns": state["commentator1_pronouns"],
+            "commentator1_social": state["commentator1_social"],
+            "commentator2": state["commentator2"],
+            "commentator2_pronouns": state["commentator2_pronouns"],
+            "commentator2_social": state["commentator2_social"],
         })
 
 @app.route("/api/event_info", methods=["POST"])
@@ -119,11 +138,21 @@ def update_event_info():
     with lock:
         if "round"        in data: state["round"]        = data["round"].strip()
         if "event"        in data: state["event"]        = data["event"].strip()
-        if "commentators" in data: state["commentators"] = data["commentators"].strip()
+        if "commentator1" in data: state["commentator1"] = data["commentator1"].strip()
+        if "commentator1_pronouns" in data: state["commentator1_pronouns"] = data["commentator1_pronouns"].strip()
+        if "commentator1_social" in data: state["commentator1_social"] = data["commentator1_social"].strip()
+        if "commentator2" in data: state["commentator2"] = data["commentator2"].strip()
+        if "commentator2_pronouns" in data: state["commentator2_pronouns"] = data["commentator2_pronouns"].strip()
+        if "commentator2_social" in data: state["commentator2_social"] = data["commentator2_social"].strip()
         return jsonify({
             "round":        state["round"],
             "event":        state["event"],
-            "commentators": state["commentators"],
+            "commentator1": state["commentator1"],
+            "commentator1_pronouns": state["commentator1_pronouns"],
+            "commentator1_social": state["commentator1_social"],
+            "commentator2": state["commentator2"],
+            "commentator2_pronouns": state["commentator2_pronouns"],
+            "commentator2_social": state["commentator2_social"],
         })
 
 @app.route("/api/round", methods=["POST"])
@@ -283,4 +312,4 @@ def reset_all():
         return jsonify(state)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5008)
