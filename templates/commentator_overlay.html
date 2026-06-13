@@ -172,9 +172,10 @@
   function setDetail(prefix, social, pronouns) {
     social   = (social   || '').trim();
     pronouns = (pronouns || '').trim();
+    const pronounText = pronouns ? `(${pronouns})` : '';
     document.getElementById(`${prefix}-social`).textContent =
-      (social && pronouns) ? social + ' ' : social;
-    document.getElementById(`${prefix}-pronouns`).textContent = pronouns;
+      (social && pronounText) ? social + ' ' : social;
+    document.getElementById(`${prefix}-pronouns`).textContent = pronounText;
     document.getElementById(`${prefix}-detail`).dataset.empty =
       (!social && !pronouns) ? 'true' : 'false';
   }
