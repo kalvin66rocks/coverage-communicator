@@ -4,6 +4,10 @@
   <meta charset="UTF-8"/>
   <title>Life Tracker Overlay — {{ match }}</title>
   <style>
+    :root {
+      --bottom-spacing:      10px;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -195,18 +199,18 @@
     /* ── Round — bottom right ── */
     .round {
       position: absolute;
-      bottom: 0;
-      right: 0;
+      bottom: var(--bottom-spacing);
+      right: 150px;
       font-size: 1.6rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.75);
+      color: rgba(255,255,255,1);
       white-space: nowrap;
     }
 
     /* ── Event — bottom center (truly centered on screen) ── */
     .event {
       position: absolute;
-      bottom: 0;
+      bottom: var(--bottom-spacing);
       left: 50%;
       transform: translateX(-50%);
       font-size: 1.8rem;
@@ -219,11 +223,11 @@
     /* commentators anchored just left of the event block */
     .commentators {
       position: absolute;
-      bottom: 0;
-      right: calc(50% + 220px);  /* sits left of the centered event */
+      bottom: var(--bottom-spacing);
+      right: calc(50% + 320px);  /* sits left of the centered event */
       font-size: 1.5rem;
       font-weight: 400;
-      color: rgba(255,255,255,0.8);
+      color: rgba(255,255,255,1);
       white-space: nowrap;
       text-align: right;
     }
