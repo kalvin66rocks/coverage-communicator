@@ -6,6 +6,7 @@
   <style>
     :root {
       --bottom-spacing:      10px;
+      --commentator-left-spacing : 300px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -106,15 +107,29 @@
     .panel.p1 .info-col.outer { align-items: flex-start; }
     .panel.p2 .info-col.outer { align-items: flex-end; }
 
-    /* inner col aligns text toward the timer */
+    /* outer col absorbs/shrinks instead of pushing the inner col toward the timer */
+    .info-col.outer {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    /* inner col aligns text toward the timer and stays fixed in place */
     .panel.p1 .info-col.inner { align-items: flex-end; }
     .panel.p2 .info-col.inner { align-items: flex-start; }
+
+    .info-col.inner {
+      flex: 0 0 auto;
+    }
 
     .info-name {
       font-size: 2.8rem;
       font-weight: 700;
       color: #ffffff;
       line-height: 1.1;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .info-deck {
@@ -224,7 +239,8 @@
     .commentators {
       position: absolute;
       bottom: var(--bottom-spacing);
-      right: calc(50% + 320px);  /* sits left of the centered event */
+      left: var(--commentator-left-spacing);
+      /*right: calc(50% + 320px);  /* sits left of the centered event */
       font-size: 1.5rem;
       font-weight: 400;
       color: rgba(255,255,255,1);

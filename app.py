@@ -38,6 +38,7 @@ state = {
     "commentator2": "",
     "commentator2_pronouns": "",
     "commentator2_social": "",
+    "interview": {"name": "", "deck": "", "interviewer": ""},
 }
 lock = Lock()
 
@@ -87,6 +88,14 @@ def overlay(match):
 def commentator_overlay():
     return render_template("commentator_overlay.html")
 
+@app.route("/overlay/interview")
+def interview_overlay():
+    return render_template("interview_overlay.html")
+
+@app.route("/interview")
+def interview_page():
+    return render_template("interview.html")
+
 
 # ── API ────────────────────────────────────────────────────────────────────
 
@@ -109,6 +118,7 @@ def get_state():
         out["commentator2"] = state["commentator2"]
         out["commentator2_pronouns"] = state["commentator2_pronouns"]
         out["commentator2_social"] = state["commentator2_social"]
+        out["interview"] = state["interview"]
         return jsonify(out)
 
 @app.route("/api/state/<match>")
@@ -154,6 +164,15 @@ def update_event_info():
             "commentator2_pronouns": state["commentator2_pronouns"],
             "commentator2_social": state["commentator2_social"],
         })
+
+@app.route("/api/interview", methods=["POST"])
+def update_interview():
+    data = request.json or {}
+    with lock:
+        if "name"        in data: state["interview"]["name"]        = data["name"].strip()
+        if "deck"        in data: state["interview"]["deck"]        = data["deck"].strip()
+        if "interviewer" in data: state["interview"]["interviewer"] = data["interviewer"].strip()
+        return jsonify(state["interview"])
 
 @app.route("/api/round", methods=["POST"])
 def update_round():

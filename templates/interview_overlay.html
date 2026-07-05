@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Interview Overlay</title>
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       ADJUST THESE VALUES to line the text up with your graphic.
+       The canvas is a standard 1920 × 1080 OBS browser source.
+       ════════════════════════════════════════════════════════════════ */
+    :root {
+      --bottom-spacing:           10px;
+      --commentator-left-spacing: 300px;
+
+      /* ── Player info block (centred, ~2/3 down) ── */
+      --info-top:      720px;
+      --name-size:     4rem;
+      --deck-size:     2.2rem;
+      --name-deck-gap: 12px;
+
+      /* ── Font ── */
+      --font: Arial, Helvetica, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body {
+      position: relative;
+      font-family: var(--font);
+      color: #ffffff;
+    }
+
+    /* ── Round — bottom right (mirrors overlay.html exactly) ── */
+    .round {
+      position: absolute;
+      bottom: var(--bottom-spacing);
+      right: 150px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: rgba(255,255,255,1);
+      white-space: nowrap;
+    }
+
+    /* ── Event — bottom center (mirrors overlay.html exactly) ── */
+    .event {
+      position: absolute;
+      bottom: var(--bottom-spacing);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* ── Interviewer — bottom left (mirrors overlay.html commentators exactly) ── */
+    .interviewer {
+      position: absolute;
+      bottom: var(--bottom-spacing);
+      left: var(--commentator-left-spacing);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: rgba(255,255,255,1);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .round:empty,
+    .event:empty,
+    .interviewer:empty { display: none; }
+
+    /* ── Player info (centred, 2/3 down) ── */
+    .player-block {
+      position: absolute;
+      top: var(--info-top);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--name-deck-gap);
+      white-space: nowrap;
+    }
+
+    .player-name {
+      font-size: var(--name-size);
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.05;
+    }
+
+    .player-deck {
+      font-size: var(--deck-size);
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .player-name:empty,
+    .player-deck:empty { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Interview subject: centred, 2/3 down -->
+  <div class="player-block">
+    <span class="player-name" id="player-name"></span>
+    <span class="player-deck" id="player-deck"></span>
+  </div>
+
+  <!-- Bottom bar: mirrors overlay.html layout exactly -->
+  <div class="interviewer" id="interviewer"></div>
+  <div class="event"       id="event"></div>
+  <div class="round"       id="round"></div>
+
+<script>
+  async function poll() {
+    try {
+      const res  = await fetch('/api/state');
+      const data = await res.json();
+
+      document.getElementById('event').textContent       = data.event                  || '';
+      document.getElementById('round').textContent       = data.round                  || '';
+      document.getElementById('player-name').textContent = data.interview.name         || '';
+      document.getElementById('player-deck').textContent = data.interview.deck         || '';
+      document.getElementById('interviewer').textContent = data.interview.interviewer  || '';
+    } catch (e) { /* retry next tick */ }
+  }
+
+  poll();
+  setInterval(poll, 2000);
+</script>
+</body>
+</html>

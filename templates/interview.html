@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interview — Control Panel</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0e0e12;
+      --surface: #16161d;
+      --border:  #2a2a38;
+      --accent:  #c07030;
+      --accentdim: #4a2810;
+      --text:    #e8e8f0;
+      --muted:   #707090;
+      --green:   #4ecb71;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 64px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    header p a {
+      color: #5c8fe0;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input[type="text"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      padding: 10px 14px;
+      width: 100%;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-save {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #1a0c00;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 12px 0;
+      text-transform: uppercase;
+      transition: filter 0.12s, transform 0.1s;
+      width: 100%;
+    }
+
+    .btn-save:active  { transform: scale(0.97); }
+    .btn-save:hover   { filter: brightness(1.15); }
+
+    .btn-clear {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 9px 0;
+      text-transform: uppercase;
+      transition: color 0.15s, border-color 0.15s;
+      width: 100%;
+    }
+
+    .btn-clear:hover { color: var(--text); border-color: #505070; }
+
+    .obs-link {
+      display: inline-block;
+      font-size: 0.72rem;
+      color: #5c8fe0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      align-self: flex-start;
+    }
+
+    .obs-link:hover { border-color: #5c8fe0; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--green);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      padding: 10px 20px;
+      pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s;
+      opacity: 0;
+      z-index: 100;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Interview</h1>
+  <p>INTERVIEW SCENE CONTROL &nbsp;|&nbsp; <a href="/">Life Tracker ↗</a></p>
+</header>
+
+<div class="card">
+  <div class="card-title">Interview Subject</div>
+
+  <a class="obs-link" href="http://localhost:5008/overlay/interview" target="_blank">OBS: /overlay/interview ↗</a>
+
+  <div class="field">
+    <label for="input-name">Player Name</label>
+    <input type="text" id="input-name" placeholder="e.g. Jane Smith" autocomplete="off" />
+  </div>
+
+  <div class="field">
+    <label for="input-deck">Deck</label>
+    <input type="text" id="input-deck" placeholder="e.g. Mono-Red Aggro" autocomplete="off" />
+  </div>
+
+  <div class="field">
+    <label for="input-interviewer">Interviewer</label>
+    <input type="text" id="input-interviewer" placeholder="e.g. Jane Smith" autocomplete="off" />
+  </div>
+
+  <button class="btn-save" onclick="save()">Save to Overlay</button>
+  <button class="btn-clear" onclick="clear()">Clear Overlay</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  async function save() {
+    const name        = document.getElementById('input-name').value.trim();
+    const deck        = document.getElementById('input-deck').value.trim();
+    const interviewer = document.getElementById('input-interviewer').value.trim();
+    await fetch('/api/interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, deck, interviewer }),
+    });
+    showToast('Saved');
+  }
+
+  async function clear() {
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-deck').value = '';
+    document.getElementById('input-interviewer').value = '';
+    await fetch('/api/interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: '', deck: '', interviewer: '' }),
+    });
+    showToast('Cleared');
+  }
+
+  // Pre-fill fields with current server state on load
+  async function load() {
+    try {
+      const res  = await fetch('/api/state');
+      const data = await res.json();
+      document.getElementById('input-name').value        = data.interview.name        || '';
+      document.getElementById('input-deck').value        = data.interview.deck        || '';
+      document.getElementById('input-interviewer').value = data.interview.interviewer || '';
+    } catch (e) {}
+  }
+
+  // Save on Enter in any field
+  ['input-name', 'input-deck', 'input-interviewer'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') save();
+    });
+  });
+
+  load();
+</script>
+</body>
+</html>
