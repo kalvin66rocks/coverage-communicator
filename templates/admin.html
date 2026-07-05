@@ -497,6 +497,35 @@
 
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+    /* ── Nav links ── */
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 28px;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .nav-link {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #5c8fe0;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 8px 20px;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover { border-color: #5c8fe0; color: #82aaee; }
+
     @media (max-width: 520px) {
       .players { grid-template-columns: 1fr; }
     }
@@ -506,8 +535,14 @@
 
 <header>
   <h1>Life Tracker</h1>
-  <p>TWO-MATCH CONTROL PANEL &nbsp;|&nbsp; <a href="/players" style="color:#5c8fe0;text-decoration:none;letter-spacing:0.04em">Player Info ↗</a></p>
+  <p style="margin-top:6px;font-size:0.75rem;color:#707090;letter-spacing:0.05em">TWO-MATCH CONTROL PANEL</p>
 </header>
+
+<nav class="nav-links">
+  <a class="nav-link" href="/players">Player Info</a>
+  <a class="nav-link" href="/event">Event Info</a>
+  <a class="nav-link" href="/interview">Interview</a>
+</nav>
 
 <!-- Tabs -->
 <div class="tabs">

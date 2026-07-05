@@ -96,6 +96,10 @@ def interview_overlay():
 def interview_page():
     return render_template("interview.html")
 
+@app.route("/event")
+def event_page():
+    return render_template("event.html")
+
 
 # ── API ────────────────────────────────────────────────────────────────────
 

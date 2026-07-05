@@ -51,12 +51,6 @@
       letter-spacing: 0.05em;
     }
 
-    .round-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-    }
-
     /* ── Match sections ── */
     .matches {
       width: 100%;
@@ -199,50 +193,11 @@
 
 <header>
   <h1>Player Info</h1>
-  <p>LIFE TRACKER &nbsp;|&nbsp; <a href="/" style="color:#5c8fe0;text-decoration:none;letter-spacing:0.04em">← Control Panel</a> &nbsp;|&nbsp; <a href="/overlay/commentators" target="_blank" style="color:#5c8fe0;text-decoration:none;letter-spacing:0.04em">Commentator Overlay ↗</a></p>
+  <p><a href="/" style="color:#5c8fe0;text-decoration:none;letter-spacing:0.04em">← Control Panel</a></p>
 </header>
 
 <div class="matches">
 
-  <!-- Event / round info -->
-  <div class="match-block">
-    <div class="match-heading">Event Info</div>
-    <div class="field">
-      <label>Event Name</label>
-      <input type="text" id="event-input" maxlength="80" placeholder="e.g. Friday Night Commander" />
-    </div>
-    <div class="field">
-      <label>Commentator 1</label>
-      <input type="text" id="commentator1-input" maxlength="40" placeholder="e.g. Alex" />
-    </div>
-    <div class="field">
-      <label>Commentator 1 Social</label>
-      <input type="text" id="commentator1_social-input" maxlength="40" placeholder="e.g. @alexplays" />
-    </div>
-    <div class="field">
-      <label>Commentator 1 Pronouns</label>
-      <input type="text" id="commentator1_pronouns-input" maxlength="30" placeholder="e.g. they/them" />
-    </div>
-    <div class="field">
-      <label>Commentator 2</label>
-      <input type="text" id="commentator2-input" maxlength="40" placeholder="e.g. Sam" />
-    </div>
-    <div class="field">
-      <label>Commentator 2 Social</label>
-      <input type="text" id="commentator2_social-input" maxlength="40" placeholder="e.g. @samcasts" />
-    </div>
-    <div class="field">
-      <label>Commentator 2 Pronouns</label>
-      <input type="text" id="commentator2_pronouns-input" maxlength="30" placeholder="e.g. she/her" />
-    </div>
-    <div class="round-row">
-      <div class="field" style="flex:1">
-        <label>Round</label>
-        <input type="text" id="round-input" maxlength="60" placeholder="e.g. Round 4 — Swiss" />
-      </div>
-      <button class="save-btn" style="align-self:flex-end;width:auto;padding:9px 28px" onclick="saveEventInfo()">Save</button>
-    </div>
-  </div>
   <div class="match-block">
     <div class="match-heading">Match 1</div>
     <div class="player-cards">
@@ -391,41 +346,8 @@
     });
   });
 
-  async function saveEventInfo() {
-    const payload = {
-      event:        document.getElementById('event-input').value.trim(),
-      commentator1: document.getElementById('commentator1-input').value.trim(),
-      commentator1_pronouns: document.getElementById('commentator1_pronouns-input').value.trim(),
-      commentator1_social: document.getElementById('commentator1_social-input').value.trim(),
-      commentator2: document.getElementById('commentator2-input').value.trim(),
-      commentator2_pronouns: document.getElementById('commentator2_pronouns-input').value.trim(),
-      commentator2_social: document.getElementById('commentator2_social-input').value.trim(),
-      round:        document.getElementById('round-input').value.trim(),
-    };
-    await fetch('/api/event_info', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    showToast('Event info saved');
-  }
-
-  ['event-input','commentator1-input','commentator1_social-input','commentator1_pronouns-input','commentator2-input','commentator2_social-input','commentator2_pronouns-input','round-input'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') saveEventInfo();
-    });
-  });
-
   // Load current state on page open
   fetch('/api/state').then(r => r.json()).then(data => {
-    document.getElementById('event-input').value        = data.event || '';
-    document.getElementById('commentator1-input').value  = data.commentator1 || '';
-    document.getElementById('commentator1_social-input').value = data.commentator1_social || '';
-    document.getElementById('commentator1_pronouns-input').value = data.commentator1_pronouns || '';
-    document.getElementById('commentator2-input').value  = data.commentator2 || '';
-    document.getElementById('commentator2_social-input').value = data.commentator2_social || '';
-    document.getElementById('commentator2_pronouns-input').value = data.commentator2_pronouns || '';
-    document.getElementById('round-input').value         = data.round || '';
     ['match1','match2'].forEach(m => {
       ['player1','player2'].forEach(p => {
         populate(m, p, data[m][p]);

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Info — Control Panel</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0e0e12;
+      --surface: #16161d;
+      --border:  #2a2a38;
+      --text:    #e8e8f0;
+      --muted:   #707090;
+      --green:   #4ecb71;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 64px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    header p a {
+      color: #5c8fe0;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-heading {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-top: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      transition: border-color 0.15s;
+      width: 100%;
+      outline: none;
+    }
+
+    .field input:focus { border-color: #505070; }
+    .field input::placeholder { color: #404058; }
+
+    .commentator-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .commentator-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .round-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .save-btn {
+      background: var(--green);
+      border: none;
+      border-radius: 7px;
+      color: #0a1a0a;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 9px 0;
+      text-transform: uppercase;
+      transition: filter 0.12s, transform 0.1s;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .save-btn:hover  { filter: brightness(1.1); }
+    .save-btn:active { transform: scale(0.97); }
+
+    .obs-link {
+      font-size: 0.72rem;
+      color: #5c8fe0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      align-self: flex-start;
+    }
+
+    .obs-link:hover { border-color: #5c8fe0; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--green);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      padding: 10px 20px;
+      pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s;
+      opacity: 0;
+      z-index: 100;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Event Info</h1>
+  <p><a href="/">← Control Panel</a></p>
+</header>
+
+<div class="container">
+
+  <div class="field">
+    <label>Event Name</label>
+    <input type="text" id="event-input" maxlength="80" placeholder="e.g. Friday Night Commander" />
+  </div>
+
+  <div class="round-row">
+    <div class="field" style="flex:1">
+      <label>Round</label>
+      <input type="text" id="round-input" maxlength="60" placeholder="e.g. Round 4 — Swiss" />
+    </div>
+  </div>
+
+  <div class="section-heading">Commentators</div>
+
+  <a class="obs-link" href="http://localhost:5008/overlay/commentators" target="_blank">OBS: /overlay/commentators ↗</a>
+
+  <div class="commentator-card">
+    <div class="commentator-title">Commentator 1</div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="commentator1-input" maxlength="40" placeholder="e.g. Alex" />
+    </div>
+    <div class="field">
+      <label>Social Handle</label>
+      <input type="text" id="commentator1_social-input" maxlength="40" placeholder="e.g. @alexplays" />
+    </div>
+    <div class="field">
+      <label>Pronouns</label>
+      <input type="text" id="commentator1_pronouns-input" maxlength="30" placeholder="e.g. they/them" />
+    </div>
+  </div>
+
+  <div class="commentator-card">
+    <div class="commentator-title">Commentator 2</div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="commentator2-input" maxlength="40" placeholder="e.g. Sam" />
+    </div>
+    <div class="field">
+      <label>Social Handle</label>
+      <input type="text" id="commentator2_social-input" maxlength="40" placeholder="e.g. @samcasts" />
+    </div>
+    <div class="field">
+      <label>Pronouns</label>
+      <input type="text" id="commentator2_pronouns-input" maxlength="30" placeholder="e.g. she/her" />
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="save()">Save</button>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  async function save() {
+    const payload = {
+      event:                  document.getElementById('event-input').value.trim(),
+      round:                  document.getElementById('round-input').value.trim(),
+      commentator1:           document.getElementById('commentator1-input').value.trim(),
+      commentator1_social:    document.getElementById('commentator1_social-input').value.trim(),
+      commentator1_pronouns:  document.getElementById('commentator1_pronouns-input').value.trim(),
+      commentator2:           document.getElementById('commentator2-input').value.trim(),
+      commentator2_social:    document.getElementById('commentator2_social-input').value.trim(),
+      commentator2_pronouns:  document.getElementById('commentator2_pronouns-input').value.trim(),
+    };
+    await fetch('/api/event_info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    showToast('Saved');
+  }
+
+  const allIds = [
+    'event-input', 'round-input',
+    'commentator1-input', 'commentator1_social-input', 'commentator1_pronouns-input',
+    'commentator2-input', 'commentator2_social-input', 'commentator2_pronouns-input',
+  ];
+
+  allIds.forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') save();
+    });
+  });
+
+  fetch('/api/state').then(r => r.json()).then(data => {
+    document.getElementById('event-input').value                   = data.event                  || '';
+    document.getElementById('round-input').value                   = data.round                  || '';
+    document.getElementById('commentator1-input').value            = data.commentator1            || '';
+    document.getElementById('commentator1_social-input').value     = data.commentator1_social     || '';
+    document.getElementById('commentator1_pronouns-input').value   = data.commentator1_pronouns   || '';
+    document.getElementById('commentator2-input').value            = data.commentator2            || '';
+    document.getElementById('commentator2_social-input').value     = data.commentator2_social     || '';
+    document.getElementById('commentator2_pronouns-input').value   = data.commentator2_pronouns   || '';
+  });
+</script>
+</body>
+</html>
