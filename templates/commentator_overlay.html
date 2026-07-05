@@ -14,12 +14,6 @@
       /* Common variables */
       --edge-spacing:      400px;
       --commentator-bottom-spacing:    60px;
-      /* ── Event name block ── */
-      --event-left:        960px;   /* horizontal anchor (960 = centre)   */
-      --event-bottom:      80px;   /* distance from top                  */
-      --event-align:       center;  /* left | center | right              */
-      --event-size:        3.4rem;  /* font size                          */
-
       /* ── Commentator 1 block ── */
       --c1-left:           var(--edge-spacing);   /* distance from LEFT edge to anchor  */
       --c1-top:            780px;   /* distance from top                  */
@@ -71,18 +65,6 @@
       display: inline-flex;
       flex-direction: column;
     }
-
-    /* Event */
-    .event {
-      left: var(--event-left);
-      bottom:  var(--event-bottom);
-      font-size: var(--event-size);
-      font-weight: 700;
-      text-align: var(--event-align);
-    }
-    .event.align-center { transform: translateX(-50%); align-items: center; }
-    .event.align-right  { transform: translateX(-100%); align-items: flex-end; }
-    .event.align-left   { align-items: flex-start; }
 
     /* Commentator 1 */
     .c1 {
@@ -136,19 +118,13 @@
     /* hide empties so nothing leaves a gap */
     .comm-name:empty,
     .comm-social:empty,
-    .comm-pronouns:empty,
-    .event-text:empty { display: none; }
+    .comm-pronouns:empty { display: none; }
 
     /* collapse the detail line when JS marks it empty */
     .comm-detail[data-empty="true"] { display: none; }
   </style>
 </head>
 <body>
-
-  <!-- Event name -->
-  <div class="block event align-center">
-    <span class="event-text" id="event"></span>
-  </div>
 
   <!-- Commentator 1 -->
   <div class="block c1 align-center">
@@ -184,8 +160,6 @@
     try {
       const res  = await fetch('/api/state');
       const data = await res.json();
-
-      setText('event', data.event);
 
       setText('c1-name', data.commentator1);
       setDetail('c1', data.commentator1_social, data.commentator1_pronouns);

@@ -13,7 +13,7 @@
       --commentator-left-spacing: 300px;
 
       /* ── Player info block (centred, ~2/3 down) ── */
-      --info-top:      720px;
+      --info-top:      870px;
       --name-size:     4rem;
       --deck-size:     2.2rem;
       --name-deck-gap: 12px;
@@ -41,7 +41,7 @@
     .round {
       position: absolute;
       bottom: var(--bottom-spacing);
-      right: 150px;
+      right: 225px;
       font-size: 1.6rem;
       font-weight: 700;
       color: rgba(255,255,255,1);
@@ -132,7 +132,8 @@
       document.getElementById('round').textContent       = data.round                  || '';
       document.getElementById('player-name').textContent = data.interview.name         || '';
       document.getElementById('player-deck').textContent = data.interview.deck         || '';
-      document.getElementById('interviewer').textContent = data.interview.interviewer  || '';
+      const interviewer = (data.interview.interviewer || '').trim();
+      document.getElementById('interviewer').textContent = interviewer ? `🎤 ${interviewer}` : '';
     } catch (e) { /* retry next tick */ }
   }
 
