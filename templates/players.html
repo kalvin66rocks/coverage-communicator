@@ -75,13 +75,37 @@
       color: var(--muted);
       border-bottom: 1px solid var(--border);
       padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
+
+    .flip-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .flip-btn:hover { border-color: #505070; color: var(--text); }
+    .flip-btn[aria-pressed="true"] { border-color: #505070; color: var(--text); }
 
     .player-cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
+
+    .player-cards.flipped .pcard.p1 { order: 2; }
+    .player-cards.flipped .pcard.p2 { order: 1; }
 
     .pcard {
       background: var(--surface);
@@ -199,8 +223,11 @@
 <div class="matches">
 
   <div class="match-block">
-    <div class="match-heading">Match 1</div>
-    <div class="player-cards">
+    <div class="match-heading">
+      <span>Match 1</span>
+      <button class="flip-btn" type="button" data-match="match1" aria-pressed="false">⇅ Flip</button>
+    </div>
+    <div class="player-cards" id="match1-cards">
       <div class="pcard p1">
         <div class="pcard-title">Player 1</div>
         <div class="field">
@@ -246,8 +273,11 @@
 
   <!-- Match 2 -->
   <div class="match-block">
-    <div class="match-heading">Match 2</div>
-    <div class="player-cards">
+    <div class="match-heading">
+      <span>Match 2</span>
+      <button class="flip-btn" type="button" data-match="match2" aria-pressed="false">⇅ Flip</button>
+    </div>
+    <div class="player-cards" id="match2-cards">
       <div class="pcard p1">
         <div class="pcard-title">Player 1</div>
         <div class="field">
@@ -343,6 +373,24 @@
         const card = inp.closest('.pcard');
         card.querySelector('.save-btn').click();
       }
+    });
+  });
+
+  // Flip the visual order of player cards (display only; remembered per device)
+  function setFlipped(match, flipped) {
+    document.getElementById(`${match}-cards`).classList.toggle('flipped', flipped);
+    document.querySelector(`.flip-btn[data-match="${match}"]`)
+      .setAttribute('aria-pressed', String(flipped));
+    try { localStorage.setItem(`flip-${match}`, flipped ? '1' : '0'); } catch (e) {}
+  }
+
+  document.querySelectorAll('.flip-btn').forEach(btn => {
+    const match = btn.dataset.match;
+    let saved = false;
+    try { saved = localStorage.getItem(`flip-${match}`) === '1'; } catch (e) {}
+    setFlipped(match, saved);
+    btn.addEventListener('click', () => {
+      setFlipped(match, btn.getAttribute('aria-pressed') !== 'true');
     });
   });
 

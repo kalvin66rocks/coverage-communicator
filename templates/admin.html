@@ -118,6 +118,37 @@
 
     .obs-link:hover { border-color: #5c8fe0; }
 
+    .match-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flip-btn {
+      background: #16161d;
+      border: 1px solid #2a2a38;
+      border-radius: 4px;
+      color: #707090;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .flip-btn:hover,
+    .flip-btn[aria-pressed="true"] { border-color: #505070; color: var(--text); }
+
+    /* Flipped: swap player cards and score boxes visually */
+    .match-panel.flipped .card.p1 { order: 2; }
+    .match-panel.flipped .card.p2 { order: 1; }
+    .match-panel.flipped .score-player:first-child  { order: 3; }
+    .match-panel.flipped .score-divider             { order: 2; }
+    .match-panel.flipped .score-player:nth-child(3) { order: 1; }
+
     /* ── Player cards ── */
     .players {
       display: grid;
@@ -554,7 +585,10 @@
 <div class="match-panel active" id="panel-match1">
   <div class="match-header">
     <span class="match-title">Match 1</span>
-    <a class="obs-link" href="http://localhost:5008/overlay/match1" target="_blank">OBS: /overlay/match1 ↗</a>
+    <div class="match-header-actions">
+      <button class="flip-btn" type="button" data-match="match1" aria-pressed="false">⇅ Flip</button>
+      <a class="obs-link" href="http://localhost:5008/overlay/match1" target="_blank">OBS: /overlay/match1 ↗</a>
+    </div>
   </div>
   <div class="players">
     <div class="card p1">
@@ -619,13 +653,12 @@
     </div>
   </div>
   <div class="timer-section">
-      <div class="timer-top">
+    <div class="timer-top">
       <div class="timer-display" id="timer-match1">50:00</div>
       <label class="timer-mode">
         <input type="checkbox" id="countup-match1" onchange="setMode('match1', this.checked)" />
         Count up
       </label>
-    </div>
     </div>
     <div class="timer-btns">
       <button class="btn-timer btn-timer-start" id="btn-start-match1" onclick="timerStart('match1')">Start</button>
@@ -642,7 +675,10 @@
 <div class="match-panel" id="panel-match2">
   <div class="match-header">
     <span class="match-title">Match 2</span>
-    <a class="obs-link" href="http://localhost:5008/overlay/match2" target="_blank">OBS: /overlay/match2 ↗</a>
+    <div class="match-header-actions">
+      <button class="flip-btn" type="button" data-match="match2" aria-pressed="false">⇅ Flip</button>
+      <a class="obs-link" href="http://localhost:5008/overlay/match2" target="_blank">OBS: /overlay/match2 ↗</a>
+    </div>
   </div>
   <div class="players">
     <div class="card p1">
@@ -742,6 +778,24 @@
       p.classList.toggle('active', p.id === `panel-${match}`);
     });
   }
+
+  // ── Flip player order (display only; remembered per device) ──
+  function setFlipped(match, flipped) {
+    document.getElementById(`panel-${match}`).classList.toggle('flipped', flipped);
+    document.querySelector(`.flip-btn[data-match="${match}"]`)
+      .setAttribute('aria-pressed', String(flipped));
+    try { localStorage.setItem(`flip-${match}`, flipped ? '1' : '0'); } catch (e) {}
+  }
+
+  document.querySelectorAll('.flip-btn').forEach(btn => {
+    const match = btn.dataset.match;
+    let saved = false;
+    try { saved = localStorage.getItem(`flip-${match}`) === '1'; } catch (e) {}
+    setFlipped(match, saved);
+    btn.addEventListener('click', () => {
+      setFlipped(match, btn.getAttribute('aria-pressed') !== 'true');
+    });
+  });
 
   // ── Toast ──
   function showToast(msg) {
